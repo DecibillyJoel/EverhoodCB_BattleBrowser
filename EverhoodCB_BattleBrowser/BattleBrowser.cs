@@ -53,15 +53,18 @@ namespace EverhoodCB_BattleBrowser
             {
                 everhoodMI = FindObjectOfType<EverhoodModInstaller>();
             }
-            if (Input.GetKeyDown(KeyCode.E))
+            else
             {
-                BrowserPatches.modIndex++;
-                BrowserPatches.UpdateBattleSlotUI(everhoodMI);
-            }
-            if (Input.GetKeyDown(KeyCode.Q) && BrowserPatches.modIndex > 0)
-            {
-                BrowserPatches.modIndex--;
-                BrowserPatches.UpdateBattleSlotUI(everhoodMI);
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    BrowserPatches.modIndex++;
+                    BrowserPatches.UpdateBattleSlotUI(everhoodMI);
+                }
+                if (Input.GetKeyDown(KeyCode.Q) && BrowserPatches.modIndex > 0)
+                {
+                    BrowserPatches.modIndex--;
+                    BrowserPatches.UpdateBattleSlotUI(everhoodMI);
+                }
             }
         }
     }
