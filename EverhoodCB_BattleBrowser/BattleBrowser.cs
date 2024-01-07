@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using EverhoodModding;
 using HarmonyLib;
 using HarmonyLib.Tools;
+using Rewired;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,9 +20,24 @@ namespace EverhoodCB_BattleBrowser
     {
         public const string pluginGuid = "v8ninja.everhoodcb.battlebrowser";
         public const string pluginName = "Battle Browser (by V8_Ninja)";
-        public const string pluginVersion = "0.0.1";
+        public const string pluginVersion = "0.0.2";
+
+        public static KeyCode prevKey;
+        public static KeyCode nextKey;
+        public static int nextButton;
+        public static int prevButton;
 
         private EverhoodModInstaller everhoodMI;
+        private Joystick input = null;
+
+        public void Awake()
+        {
+            // Setting default options
+            prevKey = KeyCode.Q;
+            nextKey = KeyCode.E;
+            nextButton = 5;
+            prevButton = 4;
+        }
 
         public void Start()
         {
@@ -30,6 +46,12 @@ namespace EverhoodCB_BattleBrowser
             if (everhoodMI == null)
             {
                 Logger.LogError("Could not find EverhoodModInstaller instance!");
+            }
+
+            // Getting initial joystick (if it exists)
+            if (EverhoodInput.player.controllers.joystickCount > 0)
+            {
+                input = EverhoodInput.player.controllers.Joysticks[0];
             }
 
             // Patching DLL methods
@@ -49,23 +71,35 @@ namespace EverhoodCB_BattleBrowser
 
         public void Update()
         {
+            if (input == null && EverhoodInput.player.controllers.joystickCount > 0)
+            {
+                input = EverhoodInput.player.controllers.Joysticks[0];
+            }
+
             if (everhoodMI == null)
             {
                 everhoodMI = FindObjectOfType<EverhoodModInstaller>();
             }
             else
             {
-                if (Input.GetKeyDown(KeyCode.E))
+                if (Input.GetKeyDown(nextKey) || (input != null && input.GetButtonDown(nextButton)))
                 {
                     BrowserPatches.modIndex++;
                     BrowserPatches.UpdateBattleSlotUI(everhoodMI);
                 }
-                if (Input.GetKeyDown(KeyCode.Q) && BrowserPatches.modIndex > 0)
+                else if ((Input.GetKeyDown(prevKey) || (input != null && input.GetButtonDown(prevButton))) && BrowserPatches.modIndex > 0)
                 {
                     BrowserPatches.modIndex--;
                     BrowserPatches.UpdateBattleSlotUI(everhoodMI);
                 }
             }
+        }
+
+        public void OnDestroy()
+        {
+            Logger.LogInfo("Unpatching all methods...");
+            Harmony hrm = new Harmony(pluginGuid);
+            hrm.UnpatchSelf();
         }
     }
 }
