@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 namespace EverhoodCB_BattleBrowser
 {
@@ -26,6 +27,7 @@ namespace EverhoodCB_BattleBrowser
         public static KeyCode nextKey;
         public static int nextButton;
         public static int prevButton;
+        public static string sceneName;
 
         private EverhoodModInstaller everhoodMI;
         private Joystick input = null;
@@ -37,6 +39,7 @@ namespace EverhoodCB_BattleBrowser
             nextKey = KeyCode.E;
             nextButton = 5;
             prevButton = 4;
+            sceneName = SceneManager.GetActiveScene().name;
         }
 
         public void Start()
@@ -71,6 +74,8 @@ namespace EverhoodCB_BattleBrowser
 
         public void Update()
         {
+            if (SceneManager.GetActiveScene().name != sceneName) return;
+
             if (input == null && EverhoodInput.player.controllers.joystickCount > 0)
             {
                 input = EverhoodInput.player.controllers.Joysticks[0];
